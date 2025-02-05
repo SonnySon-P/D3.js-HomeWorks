@@ -1,4 +1,4 @@
-# D3.js - data and information visualization
+# D3.js - Data and information visualization
 
 **作品名稱：** D3.js的練習
 
