@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html lang = "zh-TW">
+<head>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+    <meta http-equiv = "X-UA-Compatible" content = "ie=edge">
+    <title>台灣人口粗出生率趨勢</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0 0 50px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .title{
+            font-family: Arial, 微軟雅黑;
+            font-size: 16px;
+            text-anchor: middle;
+        }
+  
+        .subTitle{
+            font-family: Arial, 微軟雅黑; 
+            font-size: 12px;
+            text-anchor: middle;
+            fill: #666
+        }
+
+        .top {
+            background-color: #333;
+            border-bottom: 3px solid #00b3bc;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .top h1 {
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .line {
+            fill: none;
+            stroke: steelblue;
+            stroke-width: 2px;
+        }
+
+        .box {
+            position: relative;
+            border: 1.5px solid #999;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        #detailDiv {
+            overflow-y: scroll;
+            height: 140px;
+            font-size: 14px;
+            text-align: left;
+            padding: 10px;
+        }
+
+        .container{
+            margin:0 auto;
+            width: 1000px;
+        }
+
+        .link-top {
+            width: 100%;
+            height: 1px;
+            border-top: solid #003D79 1px;
+        }
+
+        .link-right {
+            width: 100px;
+            height: 40%;
+            border-right: solid #003E3E 14px;
+       }
+
+       .link-title {
+            font-size: 14px;
+       }
+
+       .link-text {
+            font-size: 10px;
+       }
+    </style>
+</head>
+<body>
+    <div class = "top">
+        <h1>台灣人口粗出生率趨勢</h1>
+    </div>
+    <p></p>
+    <div class = "container-fluid">
+        <div class = "row">
+            <div class = "col-sm-9" >
+                <div id = "canvas" class = "box">
+            </div>
+        </div>
+        <div class = "col-sm-3">
+            <div class = "panel panel-primary">
+                <div class = "panel-body box detail">
+                    <div id = "detailDiv">
+                        <h6><b>操作說明</b></h6>
+                        <hr>
+                        <p>如果想要獲取各年度詳細粗出生率數值，請將滑鼠移至曲線上，則會出現該年度對應數值。</p>
+                    </div>
+                    <p></p>
+                    <div id = "detailDiv">
+                        <h6><b>資料來源</b></h6>
+                        <hr>
+                        <p>國家發展委員會人口推估查詢系統，網址：https://pop-proj.ndc.gov.tw/dataSearch.aspx?uid=3109&pid=59。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class = "container">
+        <br/>
+        <br/>
+        <br/>
+        <p class = "link-right">
+            <strong class = "link-title">資料說明</strong>
+        </p>
+        <div class="link-top"></div> 
+        <br/>
+        本次作業是依據國家發展委員會所公開的各年度粗出生率統計資料，擷取自1961~2020年間資料。
+        <br/>
+        <br/>
+        <br/>
+        <p class = "link-right">
+            <strong class = "link-title">設計選擇</strong>
+        </p>
+        <div class="link-top"></div> 
+        <br/>
+        此份資料主要是由年度與粗出生率兩個維度所構成，且較為偏向連續型資料，加上人們觀看此份資料時多聚焦於隨時間變化而改變的趨勢，所以皆符合折線圖的設計理念。
+        <br/>
+        <br/>
+        <br/>
+        <p class = "link-right">
+            <strong class = "link-title">經驗法則</strong>
+        </p>
+        <div class="link-top"></div> 
+        <br/>
+        由於折線圖為利用一條連續的曲線所繪製而成，考量到人們觀看習慣，若底圖無格線輔助閱讀，則容易使認知數值與真實數據有所出入。因此，本次作業採用利用滑鼠移至想關注曲線位置，自動繪製出垂直X及Y軸的輔助隔線，並且也在該點附近呈現數值，協助使用者進行查詢動作。
+    </div>
+    <script>
+        var margin = {top: 60, right: 30, bottom: 30, left: 60},
+                width = 800 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+
+        var parseTime = d3.timeParse("%Y"),
+            formatDate = d3.timeFormat("%Y"),
+            bisectDate = d3.bisector(function(d) { return d.date; }).left;
+
+        var x = d3.scaleTime().range([0, width]);
+
+        var y = d3.scaleLinear().range([height, 0]);
+
+        var valueline = d3.line()
+            .x(function(d) { return x(d.date); })
+            .y(function(d) { return y(d.value); });
+
+        var svg = d3.select("#canvas")
+            .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var lineSvg = svg.append("g");
+
+        var focus = svg.append("g") 
+            .style("display", "none");
+
+        d3.csv("Data1.csv").then(function(data) {
+            data.forEach(function(d) {
+                d.tempdate = formatDate(d.date);
+                d.date = parseTime(d.date);
+            });
+
+            x.domain(d3.extent(data, function(d) { return d.date; }));
+
+            y.domain([0, 40]);
+
+            lineSvg.append("path")
+                .data([data])
+                .attr("class", "line")
+                .attr("d", valueline);
+
+            svg.append("g")
+                .attr("transform", "translate(0, " + height + ")")
+                .call(d3.axisBottom(x));
+
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            svg.append("g")
+                .append("text")
+                    .text("西元年")
+                    .attr("class", "x_title")
+                    .attr("x", 670)
+                    .attr("y", 300);
+
+            svg.append("g")
+                .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .text("粗出生率(千分之一)")
+                    .attr("class", "y_title")
+                    .attr("x", -216)
+                    .attr("y", -33); 
+            
+            svg.append("g")
+                .append("text")
+                    .text("人口查詢互動統計圖")
+                    .attr("class", "title")
+                    .attr("x", 350)
+                    .attr("y", -30);
+                
+            svg.append("g")
+                .append("text")
+                    .text("人口粗出生率")
+                    .attr("class", "subTitle")
+                    .attr("x", 350)
+                    .attr("y", -10);
+
+            focus.append("line")
+                .attr("class", "x")
+                .style("stroke", "red")
+                .style("stroke-dasharray", "3,3")
+                .style("opacity", 0.5)
+                .attr("y1", 0)
+                .attr("y2", height);
+
+            focus.append("line")
+                .attr("class", "y")
+                .style("stroke", "red")
+                .style("stroke-dasharray", "3,3")
+                .style("opacity", 0.5)
+                .attr("x1", width)
+                .attr("x2", width);
+
+            focus.append("circle")
+                .attr("class", "y")
+                .style("fill", "none")
+                .style("stroke", "black")
+                .attr("r", 5);
+
+            focus.append("text")
+                .attr("class", "y1")
+                .style("stroke", "white")
+                .style("stroke-width", "3.5px")
+                .style("opacity", 0.8)
+                .attr("dx", 8)
+                .attr("dy", "-.3em");
+
+            focus.append("text")
+                .attr("class", "y2")
+                .attr("dx", 8)
+                .attr("dy", "-.3em");
+
+            focus.append("text")
+                .attr("class", "y3")
+                .style("stroke", "white")
+                .style("stroke-width", "3.5px")
+                .style("opacity", 0.8)
+                .attr("dx", 8)
+                .attr("dy", "1em");
+
+            focus.append("text")
+                .attr("class", "y4")
+                .attr("dx", 8)
+                .attr("dy", "1em");
+            
+            svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "none")
+                .style("pointer-events", "all")
+                .on("mouseover", function() { focus.style("display", null); })
+                .on("mouseout", function() { focus.style("display", "none"); })
+                .on("mousemove", mousemove);
+
+            function mousemove() {
+                var x0 = x.invert(d3.pointer(event,this)[0]),
+                    i = bisectDate(data, x0, 1),
+                    d0 = data[i - 1],
+                    d1 = data[i],
+                    d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+                focus.select("circle.y")
+                    .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")");
+
+                focus.select("text.y1")
+                    .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
+                    .text("粗出生率： " + d.value);
+
+                focus.select("text.y2")
+                    .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
+                    .text("粗出生率： " + d.value);
+
+                focus.select("text.y3")
+                    .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
+                    .text("西元 " + formatDate(d.date) + " 年");
+
+                focus.select("text.y4")
+                    .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
+                    .text("西元 " +  formatDate(d.date) + " 年");
+
+                focus.select(".x")
+                    .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
+                    .attr("y2", height - y(d.value));
+
+                focus.select(".y")
+                    .attr("transform", "translate(" + width * -1 + ", " + y(d.value) + ")")
+                    .attr("x2", width + width);
+                
+            }
+        });
+    </script>
+</body>
