@@ -8,20 +8,18 @@
 
 **使用語言：** HTML、CSS、JavaScript
 
+**繪圖套件：** D3.js (V7)
+
 **開發IDE：** Visual Studio Code
 
 **操作說明：** 開啟網頁方式有兩種，其一為將檔案放置於網頁伺服器中，透過瀏覽器觀看。另一種為，在Visual Studio Code安裝Live Server來開啟。(若直接點選*.htm檔，D3.js是不會運作的)
 
 **題目解說：** 作業主要有四個，分別如下：
-1. W1.asm：題目為輸入一數列，回傳第二大與第二小數值。
-3. W2.asm：題目為輸入除數與被除數，回傳計算後的商值。
-4. W3.asm：題目為輸入一數值，回傳該數值的reversal。
-5. W4.asm：題目為計算乘冪。
-
-** 運行結果：** 
+1. HW_1.html：根據2018年個人電腦作業系統的市場佔比，本圖將以直條圖的方式進行呈現。使用D3.js繪圖工具，逐一刻劃每一個元件。(若引用的數據有誤，敬請見諒。)
 
 <br>
 <div align="center">
-	<img src="./路線資訊.png" alt="Editor" width="500">
+	<img src="./HW_1截圖.png" alt="Editor" width="500">
 </div>
 <br>
+
