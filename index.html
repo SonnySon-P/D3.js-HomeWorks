@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>HomeWork 1</title>
+
+    <!-- 引入 D3.js -->
+    <script src="https://d3js.org/d3.v7.js"></script>
+
+    <style>
+        /* 網頁整體樣式 */
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to top left, #e6c5fa, #c3dc99);
+            font-family: Arial, Microsoft JhengHei;
+        }
+
+        /* 中央盒子樣式 */
+        .centered-box {
+            width: 880px;
+            height: 540px;
+            background-color: #f3f1f1;
+            border: 1px solid #333;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;  /* 增加圓角 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* 增加陰影 */
+        }
+
+        /* d3標題樣式 */
+        .title {
+            font-family: Arial, 微軟雅黑;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* d3副標題樣式 */
+        .subTitle {
+            font-family: Arial, 微軟雅黑;
+            font-size: 14px;
+            text-anchor: middle;
+            fill: #666;
+            margin-top: 15px;
+        }
+
+        /* 鏈接樣式 */
+        a {
+            text-decoration: none;
+            color: #4a90e2;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="centered-box">
+        <!-- 圖表容器 -->
+        <div id="canvas"></div>
+
+        <!-- 資料來源 -->
+        <div class="subTitle">
+            資料來源: 
+            <a href="https://gs.statcounter.com/os-market-share/desktop/worldwide/#monthly-202304-202304-bar" target="_blank">
+                Statcounter GlobalStats的2018年作業系統使用市佔率統計結果
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    let svg3 = d3.select("#canvas").append("svg")
+        .style("height", "580")
+        .style("width", "1000")
+
+    let data = [17.04, 87.51, 96.68, 98.28, 99.49, 99.99]
+    
+    svg3.append("g")
+        .append("text")
+        .text("你(妳)不知道的OS")
+        .attr("class", "title")
+        .attr("x", 353)
+        .attr("y", 30);
+    
+    svg3.append("g")
+        .append("text")
+        .text("個人電腦作業系統2018年市占率")
+        .attr("class", "subTitle")
+        .attr("x", 450)
+        .attr("y", 50);
+    
+    let xScale = d3.scaleLinear()
+        .domain([0, data.length])
+        .range([0, 600])
+        
+    let yScale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([400, 0])
+
+    let rects = svg3.selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", (d, i) => {return i * 40 + 40})
+        .attr("y", 10)
+        .attr("height", 20)
+        .attr("width", 20)
+        .style("fill", "red")
+
+    rects.attr("x", (d, i) => xScale(i) + 175)
+        .attr("y", (d, i) => 350 - yScale(d) + 100)
+        .attr("height", (d, i) => yScale(d)) 
+        .attr("width", 50)
+
+    let xAxis = d3.axisBottom(xScale)
+                .tickValues([1, 2, 3, 4, 5, 6])
+                .tickFormat((d, i) => {return "第" + d + "名"})
+                
+    let yAxis = d3.axisLeft(yScale)
+
+    svg3.append("g").attr("class", "axis")
+        .attr("transform", "translate(100, 50)")
+        .call(yAxis)
+    
+    svg3.append("g").attr("class", "axis")
+        .attr("transform", "translate(100, 450)")
+        .call(xAxis)
+        
+    svg3.append("text") 
+        .attr("x", 100) .attr("y", 30) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("市占率 (%)")
+    
+    svg3.append("text") 
+        .attr("x", 450) .attr("y", 520) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("作業系統類型")
+    
+    svg3.append("text") 
+        .attr("x", 765) .attr("y", 454) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("作業系統排名")
+        
+    svg3.append("text") 
+        .attr("x", 200) .attr("y", 490) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("Windows")
+    
+    svg3.append("text")  
+        .attr("x", 300) .attr("y", 490) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("macOS")
+        
+    svg3.append("text") 
+        .attr("x", 400) .attr("y", 490) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("Unknow")
+    
+    svg3.append("text") 
+        .attr("x", 500) .attr("y", 490) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("Linux")
+        
+    svg3.append("text") 
+        .attr("x", 600) .attr("y", 490) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("Chrome OS")
+    
+    svg3.append("text") 
+        .attr("x", 700) .attr("y", 490) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("FreeBSD")
+        
+    svg3.append("text") 
+        .attr("x", 200) .attr("y", 100) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("82.96%")
+    
+    svg3.append("text") 
+        .attr("x", 300) .attr("y", 385) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("12.49%")
+        
+    svg3.append("text") 
+        .attr("x", 400) .attr("y", 420) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("2.32%")
+    
+    svg3.append("text")  
+        .attr("x", 500) .attr("y", 425) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("1.72%")
+        
+    svg3.append("text") 
+        .attr("x", 600) .attr("y", 430) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("0.51%")
+    
+    svg3.append("text") 
+        .attr("x", 700) .attr("y", 435) 
+        .attr("transform", "rotate(0)") 
+        .attr("text-anchor", "middle")
+        .text("0.01%")
+</script>
