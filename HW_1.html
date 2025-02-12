@@ -86,16 +86,14 @@
         .style("height", "580")
         .style("width", "1000")
 
-    // 在svg中添加一個group(g)元素，用來組織其它圖形元素
-    svg3.append("g")
-        .append("text")  // 在group中添加一個text元素，用來顯示文字
+    // 在svg中添加一個text元素
+    svg3.append("text")  // 創建一個text元素
         .text("你(妳)不知道的OS")  // 設定文字內容
         .attr("class", "title")  // 設定文字的css樣式
         .attr("x", 353)  // 設定文字的x坐標
         .attr("y", 30);  // 設定文字的y坐標
     
-    svg3.append("g")
-        .append("text")
+    svg3.append("text")
         .text("個人電腦作業系統2018年市占率")
         .attr("class", "subTitle")
         .attr("x", 450)
@@ -133,7 +131,7 @@
     let yAxis = d3.axisLeft(yScale)
 
     // 在svg創建一個X軸
-    svg3.append("g")
+    svg3.append("g")  // 在svg中添加一個group(g)元素，用來組織其它圖形元素
         .attr("transform", "translate(100, 450)")  // 設定該"g"元素的平移變換，使其相對於原來的位置進行偏移，將軸移動到(100, 450)的位置
         .call(xAxis)  // 呼叫xAxis函數來將先前定義的X軸，添加到該"g"元素中
     
