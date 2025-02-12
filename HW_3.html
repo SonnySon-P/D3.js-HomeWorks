@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>台灣各縣市資源回收狀況</title>
+
+    <!-- 引入 D3.js -->
+    <script src="https://d3js.org/d3.v7.js"></script>
+
+    <style>
+        /* 網頁整體樣式 */
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to top left, #e6c5fa, #c3dc99);
+            font-family: Arial, Microsoft JhengHei;
+        }
+
+        /* 中央盒子樣式 */
+        .centered-box {
+            width: 870px;
+            height: 500px;
+            background-color: #f3f1f1;
+            border: 1px solid #333;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* d3標題樣式 */
+        .title {
+            font-family: Arial, 微軟雅黑;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* d3副標題樣式 */
+        .subTitle {
+            font-family: Arial, 微軟雅黑;
+            font-size: 16px;
+            text-anchor: middle;
+            fill: #666;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="centered-box">
+        <!-- 圖表容器 -->
+        <div id="canvas"></div>
+
+        <!-- 資料來源 -->
+        <div class="subTitle">
+            資料來源: 
+            <a href="https://wuo-wuo.com/topics/enviromental/food-waste/954-2019-04-13-08-23-22">低迷的回收率，被焚燒的命運——廚餘回收怎麼了？</a>、
+            <a href="https://data.moenv.gov.tw/dataset/detail/STAT_P_46">一般廢棄物回收率指標資料- 行政院環保署EPA</a></p>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    var margin = {top: 150, right: 250, bottom: 70, left: 60},
+        width = 1060 - margin.left - margin.right,
+        height = 520 - margin.top - margin.bottom;
+    
+    var svg = d3.select("#canvas")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+
+    // 創建一個離散型的比例尺
+    var x = d3.scaleBand()
+        .range([0, width])  // 設定比例尺的輸出範圍
+        .padding(1);  // 每個條形之間的間隙，0表示條形之間沒有間隙、1表示最大間隙
+
+    // 創建一個xAxis元素，
+    var xAxis = svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+    
+    // 創建一個線性縮放比例尺
+    var y = d3.scaleLinear()
+        .range([height, 0]);
+
+    var yAxis = svg.append("g")
+
+    // 在svg中添加一個text元素
+    svg.append("text")  // 創建一個text元素
+        .text("台灣各縣市資源回收狀況")  // 設定文字內容
+        .attr("class", "title")  // 設定文字的css樣式
+        .attr("x", 520)  // 設定文字的x坐標
+        .attr("y", -110);  // 設定文字的y坐標
+    
+    svg.append("text")
+        .text("2016~2021統計結果")
+        .attr("class", "subTitle")
+        .attr("x", 595)
+        .attr("y", -80);
+
+    svg.append("text")
+        .text("縣市")
+        .attr("class", "x_title")
+        .attr("x", 760)
+        .attr("y", 305);
+
+    svg.append("text")
+        .attr("transform", "rotate(-90)")  // 設定文字元素的旋轉角度為-90
+        .text("回收率(百分之一)")
+        .attr("class", "y_title")
+        .attr("x", -216)
+        .attr("y", -33); 
+
+    // 在svg中添加一個rect元素
+    svg.append("rect")
+        .attr("x", 10)
+        .attr("y", -130)
+        .attr("width", 12)  // 設定矩形的寬度
+        .attr("height", 12)  // 設定矩形的高度
+        .style("fill", "#69b3a2");  // 設定矩形的填充顏色為#69b3a2
+    
+    svg.append("text")
+        .text("只『收廚餘』一類")
+        .attr("x", 30)
+        .attr("y", -120);
+    
+    svg.append("rect")
+        .attr("x", 10)
+        .attr("y", -110)
+        .attr("width", 12)
+        .attr("height", 12)
+        .style("fill", "#0072E3");
+
+    svg.append("text")
+        .text("只收『廚餘』一類，硬殼、骨頭、長纖維等歸為一般垃圾")
+        .attr("x", 30)
+        .attr("y", -100); 
+
+    svg.append("rect")
+        .attr("x", 10)
+        .attr("y", -90)
+        .attr("width", 12)
+        .attr("height", 12)
+        .style("fill", "#A86E00");
+
+    svg.append("text")
+        .text("只收『熟廚餘』為主")
+        .attr("x", 30)
+        .attr("y", -80); 
+
+    svg.append("rect")
+        .attr("x", 10)
+        .attr("y", -70)
+        .attr("width", 12)
+        .attr("height", 12)
+        .style("fill", "#6100A8");
+
+    svg.append("text")
+        .text("只部分地區、鄉鎮有分『生熟廚餘』兩類")
+        .attr("x", 30)
+        .attr("y", -60); 
+
+    svg.append("rect")
+        .attr("x", 10)
+        .attr("y", -50)
+        .attr("width", 12)
+        .attr("height", 12)
+        .style("fill", "#FF5151");
+
+    svg.append("text")
+        .text("全市分『生熟廚餘』兩類回收")
+        .attr("x", 30)
+        .attr("y", -40); 
+    
+    // 創建yearText元素(圖表中間的年份)
+    var yearText = svg.append("text")
+        .attr("x", 160)
+        .attr("y", 210)
+        .style("font-size", "200px")
+        .style("opacity", "0.1");
+
+    function update(selectedYear) {      
+        // 載入 CSV
+        d3.csv("Data2.csv").then(function(data) {
+            // 設定x和y的domain
+            x.domain(data.map(function(d) { return d.region; }));
+            xAxis.transition().duration(1000).call(d3.axisBottom(x));
+
+            y.domain([0, d3.max(data, function(d) { return +d[selectedYear]; }) ]);
+            yAxis.transition().duration(1000).call(d3.axisLeft(y));
+
+            // 處理直條圖
+            var l = svg.selectAll(".line")
+                .data(data);
+
+            l.enter()
+                .append("line")  // 創建一個line元素
+                .attr("class", "line")  // 設定選擇到的元素
+                .merge(l)  // 用來將進入的line元素
+                .transition()  // 開始一個過渡動畫，當元素的屬性改變時，會產生平滑的動畫效果
+                .attr("x1", function(d) { console.log(x(d.region)); return x(d.region); })  // 設定線段的起點x座標
+                .attr("x2", function(d) { return x(d.region); })  // 設定線段的終點x座標
+                .attr("y1", y(0))  // 設定線段的起點y座標
+                .attr("y2", function(d) { return y(d[selectedYear]); })  // 設定線段的終點y座標
+                .attr("stroke", "grey");  // 設定線條的顏色
+
+            // 處理圓形標記
+            var c = svg.selectAll(".circle")  // 選擇svg中所有的circle元素
+                .data(data);  // 將資料綁定到選擇的元素上
+
+            c.enter()
+                .append("circle")
+                .attr("class", "circle")  // 設定選擇到的元素
+                .merge(c)  // 用來將進入的circle元素
+                .transition()
+                .attr("cx", function(d) { return x(d.region); })  // 設定每個圓形的圓心x坐標
+                .attr("cy", function(d) { return y(d[selectedYear]); })  // 設定每個圓形的圓心y坐標
+                .attr("r", 8)  // 每個圓形的半徑為8px
+                .style("fill", function(d) {  // 根據不同資源回收種類，給予不同圓形內部的填充顏色
+                    if (d.type == 1) { return "#69b3a2"; }
+                    else if (d.type == 2) { return "#0072E3"; }
+                    else if (d.type == 3) { return "#A86E00"; }
+                    else if (d.type == 4) { return "#6100A8"; }
+                    else { return "#FF5151"; }
+                });
+
+            // 根據選擇的年份顯示年份
+            var year;
+            if (selectedYear === "year2016") {
+                year = 2016;
+            } else if (selectedYear === "year2017") {
+                year = 2017;
+            } else if (selectedYear === "year2018") {
+                year = 2018;
+            } else if (selectedYear === "year2019") {
+                year = 2019;
+            } else if (selectedYear === "year2020") {
+                year = 2020;
+            } else if (selectedYear === "year2021") {
+                year = 2021;
+            }
+
+            // 更新yearText顯示的年份
+            yearText.text(year);
+
+            // 處理數據標籤顯示
+            var b = svg.selectAll(".basemap")
+                .data(data);
+
+            b.enter()
+                .append("text")
+                .attr("class", "basemap")
+                .merge(b)
+                .transition()
+                .duration(1000)
+                .text(function(d) { return d[selectedYear]; })
+                .attr("x", function(d) { return x(d.region) - 5; })
+                .attr("y", function(d) { return y(d[selectedYear]) - 12; })
+                .attr("fill", "#000000");
+        });
+    }
+
+    // 初始化n值
+    var n = 0;
+    function execute(n) {       
+        // 根據n的值更新年份
+        if (n === 0) {
+            update("year2016");
+        } else if (n === 1) {
+            update("year2017");
+        } else if (n === 2) {
+            update("year2018");
+        } else if (n === 3) {
+            update("year2019");
+        } else if (n === 4) {
+            update("year2020");
+        } else if (n === 5) {
+            update("year2021");
+        }
+
+        // 持續循環2016～2021
+        n = (n + 1) % 6;
+        setTimeout(function() {
+            execute(n);
+        }, 1500);
+    }
+
+    // 開始動畫
+    execute(n);   
+</script>
