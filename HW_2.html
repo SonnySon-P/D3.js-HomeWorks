@@ -257,78 +257,54 @@
                 .attr("x2", width);
 
             focus.append("circle")
-                .attr("class", "y")
-                .style("fill", "none")
-                .style("stroke", "black")
+                .attr("class", "focusCircle")
+                .style("fill", "none")  // 指定形狀內部的填充顏色
+                .style("stroke", "black")  // 指定形狀的邊框顏色
                 .attr("r", 5);
 
             focus.append("text")
-                .attr("class", "y1")
-                .style("stroke", "white")
-                .style("stroke-width", "3.5px")
-                .style("opacity", 0.8)
-                .attr("dx", 8)
-                .attr("dy", "-.3em");
+                .attr("class", "focusText1")
+                .attr("dx", 8)  // 水平方向上的偏移量，原本位置向右移動8px
+                .attr("dy", "-0.3em");  // 垂直方向上的偏移量，上向上偏移0.3em
 
             focus.append("text")
-                .attr("class", "y2")
+                .attr("class", "focusText2")
                 .attr("dx", 8)
-                .attr("dy", "-.3em");
-
-            focus.append("text")
-                .attr("class", "y3")
-                .style("stroke", "white")
-                .style("stroke-width", "3.5px")
-                .style("opacity", 0.8)
-                .attr("dx", 8)
-                .attr("dy", "1em");
-
-            focus.append("text")
-                .attr("class", "y4")
-                .attr("dx", 8)
-                .attr("dy", "1em");
+                .attr("dy", "1.0em");
             
             svg.append("rect")
                 .attr("width", width)
                 .attr("height", height)
                 .style("fill", "none")
                 .style("pointer-events", "all")
-                .on("mouseover", function() { focus.style("display", null); })
-                .on("mouseout", function() { focus.style("display", "none"); })
-                .on("mousemove", mousemove);
+                .on("mouseover", function() { focus.style("display", null); })  // 當鼠標指針移到某個元素上時觸發，把focus的display屬性設置為null
+                .on("mouseout", function() { focus.style("display", "none"); })  // 把focus的display屬性設置為隱藏
+                .on("mousemove", mousemove);  // 觸發mousemove函數
 
             function mousemove() {
-                var x0 = x.invert(d3.pointer(event,this)[0]),
-                    i = bisectDate(data, x0, 1),
-                    d0 = data[i - 1],
-                    d1 = data[i],
-                    d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+                var xIndex = x.invert(d3.pointer(event, this)[0]),  // 獲取鼠標在當前事件目標
+                    i = bisectDate(data, xIndex, 1),  // 在data中查找接近x0的數據點索引
+                    d0 = data[i - 1],  // 獲取在索引i-1的data
+                    d1 = data[i],  // 獲取在索引i的data
+                    d = xIndex - d0.date > d1.date - xIndex ? d1 : d0;
 
                 // 選擇DOM元素，並進行操作
-                focus.select("circle.y")
+                focus.select("circle.focusCircle")
                     .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")");
 
-                focus.select("text.y1")
+                focus.select("text.focusText1")
                     .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
                     .text("粗出生率： " + d.value);
 
-                focus.select("text.y2")
-                    .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
-                    .text("粗出生率： " + d.value);
-
-                focus.select("text.y3")
-                    .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
-                    .text("西元 " + formatDate(d.date) + " 年");
-
-                focus.select("text.y4")
+                focus.select("text.focusText2")
                     .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
                     .text("西元 " +  formatDate(d.date) + " 年");
 
-                focus.select(".xFocusLine")
+                focus.select("line.xFocusLine")
                     .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
                     .attr("y2", height - y(d.value));
 
-                focus.select(".yFocusLine")
+                focus.select("line.yFocusLine")
                     .attr("transform", "translate(" + width * -1 + ", " + y(d.value) + ")")
                     .attr("x2", width + width);
             }
