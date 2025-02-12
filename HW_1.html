@@ -77,18 +77,22 @@
 </body>
 </html>
 <script>
-    let svg3 = d3.select("#canvas").append("svg")
+    // 定義一個儲存作業系統市佔率的數據陣列，供後續的圖表繪製中使用
+    let data = [17.04, 87.51, 96.68, 98.28, 99.49, 99.99]
+
+    // 在HTML頁面上，創建一個svg元素
+    let svg3 = d3.select("#canvas")
+        .append("svg")
         .style("height", "580")
         .style("width", "1000")
 
-    let data = [17.04, 87.51, 96.68, 98.28, 99.49, 99.99]
-    
+    // 在svg中添加一個group(g)元素，用來組織其它圖形元素
     svg3.append("g")
-        .append("text")
-        .text("你(妳)不知道的OS")
-        .attr("class", "title")
-        .attr("x", 353)
-        .attr("y", 30);
+        .append("text")  // 在group中添加一個text元素，用來顯示文字
+        .text("你(妳)不知道的OS")  // 設定文字內容
+        .attr("class", "title")  // 設定文字的css樣式
+        .attr("x", 353)  // 設定文字的x坐標
+        .attr("y", 30);  // 設定文字的y坐標
     
     svg3.append("g")
         .append("text")
@@ -96,48 +100,51 @@
         .attr("class", "subTitle")
         .attr("x", 450)
         .attr("y", 50);
-    
+
+    // 創建一個線性縮放比例尺
     let xScale = d3.scaleLinear()
-        .domain([0, data.length])
-        .range([0, 600])
+        .domain([0, data.length])  // 設定數據的範圍從0到100
+        .range([0, 600])  // 將數據範圍映射到0到600的區間
         
     let yScale = d3.scaleLinear()
         .domain([0, 100])
         .range([400, 0])
 
+    // 選擇svg中所有的矩形元素
     let rects = svg3.selectAll("rect")
-        .data(data)
+        .data(data)  // 將data數據綁定到矩形元素上
         .enter()
         .append("rect")
-        .attr("x", (d, i) => {return i * 40 + 40})
-        .attr("y", 10)
-        .attr("height", 20)
-        .attr("width", 20)
-        .style("fill", "red")
+        .attr("x", (d, i) => {return i * 40 + 40})  // 設定每個矩形的x坐標
+        .attr("y", 10)  // 設定每個矩形的y坐標
+        .style("fill", "red")  // 設定矩形的填充顏色為紅色
 
-    rects.attr("x", (d, i) => xScale(i) + 175)
-        .attr("y", (d, i) => 350 - yScale(d) + 100)
-        .attr("height", (d, i) => yScale(d)) 
-        .attr("width", 50)
+    // 設定直條圖
+    rects.attr("x", (d, i) => xScale(i) + 175)  // 設定直條圖的x座標位置，xScale(i)會根據索引i對應到一個水平的位置，再加上175偏移量
+        .attr("y", (d, i) => 350 - yScale(d) + 100)  // 設定直條圖的y座標位置，350是圖表的基準點，yScale(d)將數據d映射到y座標，並加上100偏移量
+        .attr("height", (d, i) => yScale(d))  // 設定直條圖的高度，根據數據d使用yScale函數計算出對應的高度值
+        .attr("width", 50)  // 設定直條圖的寬度為50
 
-    let xAxis = d3.axisBottom(xScale)
-                .tickValues([1, 2, 3, 4, 5, 6])
-                .tickFormat((d, i) => {return "第" + d + "名"})
-                
+    // 設定X軸
+    let xAxis = d3.axisBottom(xScale)  // 使用d3.axisBottom()創建一個位於底部的X軸，並將xScale作為該軸的比例縮放函數
+        .tickValues([1, 2, 3, 4, 5, 6])  // 設定X軸顯示的刻度值為[1, 2, 3, 4, 5, 6]，這些數字將在X軸上顯示
+        .tickFormat((d, i) => {return "第" + d + "名"})  // 設定刻度的顯示格式，將每個刻度顯示為"第x名"的格式，其中d是刻度的數值
+    
     let yAxis = d3.axisLeft(yScale)
 
-    svg3.append("g").attr("class", "axis")
+    // 在svg創建一個X軸
+    svg3.append("g")
+        .attr("transform", "translate(100, 450)")  // 設定該"g"元素的平移變換，使其相對於原來的位置進行偏移，將軸移動到(100, 450)的位置
+        .call(xAxis)  // 呼叫xAxis函數來將先前定義的X軸，添加到該"g"元素中
+    
+    svg3.append("g")
         .attr("transform", "translate(100, 50)")
         .call(yAxis)
-    
-    svg3.append("g").attr("class", "axis")
-        .attr("transform", "translate(100, 450)")
-        .call(xAxis)
-        
+         
     svg3.append("text") 
         .attr("x", 100) .attr("y", 30) 
-        .attr("transform", "rotate(0)") 
-        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(0)")  // 設定文字元素的旋轉角度為0
+        .attr("text-anchor", "middle")  // 設定文字會以其中間位置為基準進行對齊
         .text("市占率 (%)")
     
     svg3.append("text") 
