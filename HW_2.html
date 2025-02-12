@@ -4,11 +4,16 @@
 <head>
     <meta charset = "UTF-8">
     <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
-    <meta http-equiv = "X-UA-Compatible" content = "ie=edge">
+    <meta http-equiv = "X-UA-Compatible" content = "ie=edge"> 
     <title>台灣人口粗出生率趨勢</title>
+
+     <!-- 引入 D3.js -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- 引入Bootstrap -->
     <link rel="stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <style>
+        /* 以下是自訂的CSS樣式 */
         body {
             font-family: Arial, Helvetica, sans-serif;
             margin: 0;
@@ -148,97 +153,105 @@
         由於折線圖為利用一條連續的曲線所繪製而成，考量到人們觀看習慣，若底圖無格線輔助閱讀，則容易使認知數值與真實數據有所出入。因此，本次作業採用利用滑鼠移至想關注曲線位置，自動繪製出垂直X及Y軸的輔助隔線，並且也在該點附近呈現數值，協助使用者進行查詢動作。
     </div>
     <script>
+        // 設定圖表大小
         var margin = {top: 60, right: 30, bottom: 30, left: 60},
-                width = 800 - margin.left - margin.right,
-                height = 400 - margin.top - margin.bottom;
+            width = 800 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom;
 
-        var parseTime = d3.timeParse("%Y"),
-            formatDate = d3.timeFormat("%Y"),
-            bisectDate = d3.bisector(function(d) { return d.date; }).left;
+        var parseTime = d3.timeParse("%Y"),  // 解析日期字串
+            formatDate = d3.timeFormat("%Y"),  // 格式化時間和日期
+            bisectDate = d3.bisector(function(d) { return d.date; }).left;  // 創建一個二分法查找器
 
-        var x = d3.scaleTime().range([0, width]);
+        // 創建一個svg元素，繪製圖表
+        var svg = d3.select("#canvas")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
+        // 創建一個時間刻度比例尺
+        var x = d3.scaleTime()
+            .range([0, width]);
 
-        var y = d3.scaleLinear().range([height, 0]);
+        // 創建一個線性縮放比例尺
+        var y = d3.scaleLinear()
+            .range([height, 0]);
 
-        var valueline = d3.line()
+        // 創建數據的線條
+        var lineValue = d3.line()
             .x(function(d) { return x(d.date); })
             .y(function(d) { return y(d.value); });
 
-        var svg = d3.select("#canvas")
-            .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+        // 創建一個svg的群組
         var lineSvg = svg.append("g");
-
+        
+        // 創建一個focus元素，繪製滑鼠事件
         var focus = svg.append("g") 
             .style("display", "none");
 
+        // 讀取資料，並繪製圖表
         d3.csv("Data1.csv").then(function(data) {
             data.forEach(function(d) {
-                d.tempdate = formatDate(d.date);
                 d.date = parseTime(d.date);
             });
 
-            x.domain(d3.extent(data, function(d) { return d.date; }));
+            x.domain(d3.extent(data, function(d) { return d.date; }));  // 設定數據的範圍，d3.extent為計算一組數據中的最小值和最大值
 
             y.domain([0, 40]);
 
+            // 創建並將一個path，添加到svg元素中，用於描繪折線
             lineSvg.append("path")
                 .data([data])
-                .attr("class", "line")
-                .attr("d", valueline);
+                .attr("class", "line")   // 設定文字的css樣式
+                .attr("d", lineValue);
 
+            // 生成水平坐標軸
             svg.append("g")
                 .attr("transform", "translate(0, " + height + ")")
                 .call(d3.axisBottom(x));
 
+            // 生成垂直坐標軸
             svg.append("g")
                 .call(d3.axisLeft(y));
 
-            svg.append("g")
-                .append("text")
-                    .text("西元年")
-                    .attr("class", "x_title")
-                    .attr("x", 670)
-                    .attr("y", 300);
+            // 在svg中添加一個text元素
+            svg.append("text")  // 創建一個text元素
+                .text("西元年")  // 設定文字內容
+                .attr("x", 670)  // 設定文字的x坐標
+                .attr("y", 300);  // 設定文字的y坐標
 
-            svg.append("g")
-                .append("text")
-                    .attr("transform", "rotate(-90)")
-                    .text("粗出生率(千分之一)")
-                    .attr("class", "y_title")
-                    .attr("x", -216)
-                    .attr("y", -33); 
+            svg.append("text")
+                .attr("transform", "rotate(-90)")  // 設定文字元素的旋轉角度為-90
+                .text("粗出生率(千分之一)")
+                .attr("x", -216)
+                .attr("y", -33); 
             
-            svg.append("g")
-                .append("text")
-                    .text("人口查詢互動統計圖")
-                    .attr("class", "title")
-                    .attr("x", 350)
-                    .attr("y", -30);
+            svg.append("text")
+                .text("人口查詢互動統計圖")
+                .attr("class", "title")
+                .attr("x", 350)
+                .attr("y", -30);
                 
-            svg.append("g")
-                .append("text")
-                    .text("人口粗出生率")
-                    .attr("class", "subTitle")
-                    .attr("x", 350)
-                    .attr("y", -10);
+            svg.append("text")
+                .text("人口粗出生率")
+                .attr("class", "subTitle")
+                .attr("x", 350)
+                .attr("y", -10);
+
+            // 在focus中創建一條直線
+            focus.append("line")
+                .attr("class", "xFocusLine")  // 設定這條線的class為xStyle，可以通過此class來控制該線條
+                .style("stroke", "red")  // 設定線條的顏色為紅色
+                .style("stroke-dasharray", "3, 3")  // 設定線條的虛線樣式，其中3,3表示線段長度為3單位，間隙為3單位
+                .style("opacity", 0.5)  // 設定線條的透明度為0.5
+                .attr("y1", 0)  // 設定線條的起點Y座標為0
+                .attr("y2", height);  // 設定線條的終點Y座標為height，線條會根據height延伸到畫布的底部
 
             focus.append("line")
-                .attr("class", "x")
+                .attr("class", "yFocusLine")
                 .style("stroke", "red")
-                .style("stroke-dasharray", "3,3")
-                .style("opacity", 0.5)
-                .attr("y1", 0)
-                .attr("y2", height);
-
-            focus.append("line")
-                .attr("class", "y")
-                .style("stroke", "red")
-                .style("stroke-dasharray", "3,3")
+                .style("stroke-dasharray", "3, 3")
                 .style("opacity", 0.5)
                 .attr("x1", width)
                 .attr("x2", width);
@@ -291,6 +304,7 @@
                     d1 = data[i],
                     d = x0 - d0.date > d1.date - x0 ? d1 : d0;
 
+                // 選擇DOM元素，並進行操作
                 focus.select("circle.y")
                     .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")");
 
@@ -310,14 +324,13 @@
                     .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
                     .text("西元 " +  formatDate(d.date) + " 年");
 
-                focus.select(".x")
+                focus.select(".xFocusLine")
                     .attr("transform", "translate(" + x(d.date) + ", " + y(d.value) + ")")
                     .attr("y2", height - y(d.value));
 
-                focus.select(".y")
+                focus.select(".yFocusLine")
                     .attr("transform", "translate(" + width * -1 + ", " + y(d.value) + ")")
                     .attr("x2", width + width);
-                
             }
         });
     </script>
