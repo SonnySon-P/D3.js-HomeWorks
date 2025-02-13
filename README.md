@@ -23,7 +23,7 @@
 </div>
 <br>
 
-2. HW_2.html：擷取自1961~2020年間，國家發展委員會所公開的各年度粗出生率統計資料(Data1.csv)，所繪製的折線圖。使用者可透過鼠標點選，協助使用者進行查詢動作。
+2. HW_2.html：擷取自1961~2020年間，國家發展委員會所公開的各年度粗出生率統計資料(Data1.csv)，所繪製的折線圖。使用者可透過鼠標點選，協助使用者進行查詢動作。此繪圖，有參考Stack Overflow的貼文，但因年代久遠，不確定準確文章，[D3.js: Wrong position of horizontal and vertical focus lines (crosshairs) in line chart](https://stackoverflow.com/questions/40527481/d3-js-wrong-position-of-horizontal-and-vertical-focus-lines-crosshairs-in-lin)爲相似資源。
 
 <br>
 <div align="center">
